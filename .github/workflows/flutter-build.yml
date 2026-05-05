@@ -164,6 +164,9 @@ jobs:
         shell: bash
 
       - name: Build rustdesk
+        env:
+          RENDEZVOUS_SERVERS: ${{ secrets.RENDEZVOUS_SERVERS }}
+          RS_PUB_KEY: ${{ secrets.RS_PUB_KEY }}
         run: |
           # Windows: build RustDesk
           python3 .\build.py --portable --hwcodec --flutter --vram --skip-portable-pack
@@ -281,6 +284,7 @@ jobs:
             ./SignOutput/rustdesk-*.msi
             ./SignOutput/rustdesk-*.exe
 
+            
   # The fallback for the flutter version, we use Sciter for 32bit Windows.
   build-for-windows-sciter:
     name: ${{ matrix.job.target }} (${{ matrix.job.os }})
@@ -431,6 +435,7 @@ jobs:
           tag_name: ${{ env.TAG_NAME }}
           files: |
             ./SignOutput/rustdesk-*.exe
+            
 
   build-rustdesk-ios:
     if: ${{ inputs.upload-artifact }}
@@ -517,6 +522,9 @@ jobs:
           path: ./
 
       - name: Build rustdesk lib
+        env:
+          RENDEZVOUS_SERVERS: ${{ secrets.RENDEZVOUS_SERVERS }}
+          RS_PUB_KEY: ${{ secrets.RS_PUB_KEY }}
         run: |
           rustup target add ${{ matrix.job.target }}
           cargo build --features flutter,hwcodec --release --target aarch64-apple-ios --lib
@@ -711,6 +719,9 @@ jobs:
           rustc -V
 
       - name: Build rustdesk
+        env:
+          RENDEZVOUS_SERVERS: ${{ secrets.RENDEZVOUS_SERVERS }}
+          RS_PUB_KEY: ${{ secrets.RS_PUB_KEY }}
         run: |
           if [ "${{ matrix.job.target }}" = "aarch64-apple-darwin" ]; then
             MIN_MACOS_VERSION="12.3"
@@ -972,6 +983,8 @@ jobs:
 
       - name: Build rustdesk lib
         env:
+          RENDEZVOUS_SERVERS: ${{ secrets.RENDEZVOUS_SERVERS }}
+          RS_PUB_KEY: ${{ secrets.RS_PUB_KEY }}
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
           ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
@@ -1218,6 +1231,8 @@ jobs:
       - name: Build rustdesk
         shell: bash
         env:
+          RENDEZVOUS_SERVERS: ${{ secrets.RENDEZVOUS_SERVERS }}
+          RS_PUB_KEY: ${{ secrets.RS_PUB_KEY }}
           JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
         run: |
           export PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH
@@ -1466,6 +1481,8 @@ jobs:
             ls -l ./
             tree -L 3 /opt/artifacts/vcpkg/installed
           run: |
+            export RENDEZVOUS_SERVERS="${{ secrets.RENDEZVOUS_SERVERS }}"
+            export RS_PUB_KEY="${{ secrets.RS_PUB_KEY }}"
             # disable git safe.directory
             git config --global --add safe.directory "*"
             # rust
@@ -1787,6 +1804,8 @@ jobs:
             dpkg -i nasm.deb
             rm -f nasm.deb
           run: |
+            export RENDEZVOUS_SERVER="${{ secrets.RENDEZVOUS_SERVER }}"
+            export RS_PUB_KEY="${{ secrets.RS_PUB_KEY }}"
             # disable git safe.directory
             git config --global --add safe.directory "*"
             # set python3.7 as default python3
