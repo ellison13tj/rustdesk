@@ -119,12 +119,33 @@ jobs:
           # Create tarball
           tar -czf artifacts/rustdesk-debian-x86_64.tar.gz -C artifacts rustdesk
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: rustdesk-debian-x86_64
-          path: artifacts/
-          retention-days: 7
+          files: artifacts/rustdesk-debian-x86_64.tar.gz
+          tag_name: ${{ github.ref_name }}-ubuntu24.04
+          name: RustDesk Client for Ubuntu 24.04
+          body: |
+            Auto-built RustDesk client for Ubuntu 24.04 (x86_64)
+            - Built on: ${{ github.run_number }}
+            - Commit: ${{ github.sha }}
+            - Build time: ${{ github.run_id }}
+
+            ## Installation
+            ```bash
+            tar -xzf rustdesk-debian-x86_64.tar.gz
+            ./rustdesk
+            ```
+
+            ## Dependencies
+            Ensure you have the following dependencies installed:
+            - GTK 3
+            - PulseAudio
+            - GStreamer
+            - X11 libraries
+
+            ## Notes
+            This is an auto-built release from GitHub Actions.
 
       - name: Run tests
         uses: actions-rs/cargo@v1
