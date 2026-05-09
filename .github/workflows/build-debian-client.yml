@@ -105,7 +105,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --locked --target=x86_64-unknown-linux-gnu --release
+          args: --locked --target=x86_64-unknown-linux-gnu --release --bin rustdesk
         env:
           RENDEZVOUS_SERVERS: ${{ secrets.RENDEZVOUS_SERVERS }}
           RS_PUB_KEY: ${{ secrets.RS_PUB_KEY }}
@@ -115,12 +115,9 @@ jobs:
         run: |
           mkdir -p artifacts
           cp target/x86_64-unknown-linux-gnu/release/rustdesk artifacts/
-          cp target/x86_64-unknown-linux-gnu/release/rustdesk-server artifacts/
-          cp target/x86_64-unknown-linux-gnu/release/service artifacts/
-          cp target/x86_64-unknown-linux-gnu/release/naming artifacts/
 
           # Create tarball
-          tar -czf artifacts/rustdesk-debian-x86_64.tar.gz -C artifacts rustdesk rustdesk-server service naming
+          tar -czf artifacts/rustdesk-debian-x86_64.tar.gz -C artifacts rustdesk
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
