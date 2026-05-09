@@ -14,8 +14,6 @@ on:
 env:
   VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
   VCPKG_COMMIT_ID: "120deac3062162151622ca4860575a33844ba10b"
-  RENDEZVOUS_SERVERS: ${{ secrets.RENDEZVOUS_SERVERS }}
-  RS_PUB_KEY: ${{ secrets.RS_PUB_KEY }}
 
 jobs:
   build-debian-client:
@@ -108,9 +106,9 @@ jobs:
         with:
           command: build
           args: --locked --target=x86_64-unknown-linux-gnu --release
-          env:
-            RENDEZVOUS_SERVERS: ${{ env.RENDEZVOUS_SERVERS }}
-            RS_PUB_KEY: ${{ env.RS_PUB_KEY }}
+        env:
+          RENDEZVOUS_SERVERS: ${{ secrets.RENDEZVOUS_SERVERS }}
+          RS_PUB_KEY: ${{ secrets.RS_PUB_KEY }}
 
       - name: Package build artifacts
         shell: bash
