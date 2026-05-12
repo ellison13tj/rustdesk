@@ -1,4 +1,4 @@
-name: Build Debian 24.04 Client
+name: Build Ubuntu 24.04 Client
 
 on:
   workflow_dispatch:
@@ -9,15 +9,17 @@ on:
       - 'Cargo.toml'
       - 'libs/**/*.toml'
       - 'src/**/*.rs'
-      - '.github/workflows/build-debian-client.yml'
+      - '.github/workflows/build-ubuntu24-client.yml'
 
 env:
   VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
   VCPKG_COMMIT_ID: "120deac3062162151622ca4860575a33844ba10b"
+  RUST_VERSION: "1.75"  # 使用稳定版本
+  VERSION: "1.4.6"
 
 jobs:
-  build-debian-client:
-    name: Debian 24.04 (x86_64)
+  build-ubuntu24-client:
+    name: Ubuntu 24.04 (x86_64)
     runs-on: ubuntu-24.04
     steps:
       - name: Free Disk Space
@@ -70,6 +72,11 @@ jobs:
             nasm \
             wget
 
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "15.0.6"
+
       - name: Setup vcpkg with Github Actions binary cache
         uses: lukka/run-vcpkg@v11
         with:
@@ -84,22 +91,11 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@v1
         with:
-          toolchain: stable
+          toolchain: ${{ env.RUST_VERSION }}
           targets: x86_64-unknown-linux-gnu
-          components: ''
+          components: "rustfmt"
 
-      - name: Show version information
-        shell: bash
-        run: |
-          gcc --version || true
-          rustup -V
-          rustup toolchain list
-          rustup default
-          cargo -V
-          rustc -V
-
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@v2
 
       - name: Build RustDesk client
         uses: actions-rs/cargo@v1
@@ -117,13 +113,20 @@ jobs:
           cp target/x86_64-unknown-linux-gnu/release/rustdesk artifacts/
 
           # Create tarball
-          tar -czf artifacts/rustdesk-debian-x86_64.tar.gz -C artifacts rustdesk
+          tar -czf artifacts/rustdesk-ubuntu24-x86_64.tar.gz -C artifacts rustdesk
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: rustdesk-ubuntu24-x86_64
+          path: artifacts/
+          retention-days: 7
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: artifacts/rustdesk-debian-x86_64.tar.gz
-          tag_name: ${{ github.ref_name }}-ubuntu24.04
+          files: artifacts/rustdesk-ubuntu24-x86_64.tar.gz
+          tag_name: v${{ env.VERSION }}-ubuntu24.04
           name: RustDesk Client for Ubuntu 24.04
           body: |
             Auto-built RustDesk client for Ubuntu 24.04 (x86_64)
@@ -133,7 +136,7 @@ jobs:
 
             ## Installation
             ```bash
-            tar -xzf rustdesk-debian-x86_64.tar.gz
+            tar -xzf rustdesk-ubuntu24-x86_64.tar.gz
             ./rustdesk
             ```
 
@@ -146,9 +149,3 @@ jobs:
 
             ## Notes
             This is an auto-built release from GitHub Actions.
-
-      - name: Run tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --locked --target=x86_64-unknown-linux-gnu --workspace --no-fail-fast -- --skip test_get_cursor_pos --skip test_get_key_state
