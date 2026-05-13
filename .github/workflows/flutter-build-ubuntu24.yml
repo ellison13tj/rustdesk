@@ -10,6 +10,11 @@ on:
         type: string
         default: "nightly"
 
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
 # NOTE: F-Droid builder script 'flutter/build_fdroid.sh' reads environment
 # variables from this workflow!
 #
