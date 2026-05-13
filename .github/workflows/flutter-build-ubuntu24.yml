@@ -9,6 +9,11 @@ on:
       upload-tag:
         type: string
         default: "nightly"
+    secrets:
+      RENDEZVOUS_SERVERS:
+        required: false
+      RS_PUB_KEY:
+        required: false
 
 permissions:
   contents: write
